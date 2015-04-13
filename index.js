@@ -28,6 +28,20 @@ app.get('/', function (req, res, next) {
 });
 
 
+app.post('/webhook', function(req, res, next) {
+  res.json('OK');
+
+  if(req.body && req.body.type === 'trip:finished') {
+    var lat = req.body.location.lat,
+        lon = req.body.location.lon,
+        time = req.body.created_at,
+        userID = req.body.user.v2_id;
+
+    //TODO: update parked status and any pending notifications for user
+    //TODO: ensure time > last parked time
+  }
+});
+
 
 // error handlers
 require('./libs/errors')(app);
