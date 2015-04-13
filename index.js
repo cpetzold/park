@@ -1,15 +1,15 @@
 var pg = require('pg');
 var express = require('express');
 
-var pgUri = "postgres://park:pk112358@park.cvusblqc6wjp.us-west-2.rds.amazonaws.com/park";
+var pgUri = 'postgres://park:pk112358@park.cvusblqc6wjp.us-west-2.rds.amazonaws.com/park';
 
 var app = express();
 
-var query = "SELECT *, ST_Distance(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 2227), geom) AS distance " +
-            "FROM sfsweeproutes " +
-            "WHERE geom && ST_Expand(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 2227), 100) " +
-            "ORDER BY distance " +
-            "LIMIT 10";
+var query = 'SELECT *, ST_Distance(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 2227), geom) AS distance ' +
+            'FROM sfsweeproutes ' +
+            'WHERE geom && ST_Expand(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 2227), 100) ' +
+            'ORDER BY distance ' +
+            'LIMIT 10';
 
 app.get('/', function (req, res) {
   pg.connect(pgUri, function(err, client, done) {
