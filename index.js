@@ -15,13 +15,17 @@ var query = 'SELECT *, ST_Distance(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2),
             'ORDER BY distance ' +
             'LIMIT 10';
 
-app.get('/', function (req, res, next) {
-    if (err) {
-      return console.error('error fetching client from pool', err);
+app.get('/rules', function (req, res, next) {
   pg.connect(nconf.get('PG_URL'), function(err, client, done) {
+    if(err) return next(err);
+
+    if(!req.query || !req.query.lat || !req.query.lon) {
+      return res.json({error: 'No lat and lon provided'});
     }
 
-    client.query(query, [req.query.lat, req.query.long], function(err, result) {
+    client.query(query, [req.query.lat, req.query.lon], function(err, result) {
+      if(err) return next(err);
+
       done();
 
       var match = result.rows[0];
