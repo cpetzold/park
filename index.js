@@ -1,9 +1,13 @@
 var pg = require('pg');
+var nconf = require('nconf');
 var express = require('express');
-
-var pgUri = 'postgres://park:pk112358@park.cvusblqc6wjp.us-west-2.rds.amazonaws.com/park';
-
 var app = express();
+
+//load variables
+nconf
+  .argv()
+  .env()
+  .file({file:'./config.json'});
 
 var query = 'SELECT *, ST_Distance(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 2227), geom) AS distance ' +
             'FROM sfsweeproutes ' +
@@ -12,9 +16,9 @@ var query = 'SELECT *, ST_Distance(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2),
             'LIMIT 10';
 
 app.get('/', function (req, res, next) {
-  pg.connect(pgUri, function(err, client, done) {
     if (err) {
       return console.error('error fetching client from pool', err);
+  pg.connect(nconf.get('PG_URL'), function(err, client, done) {
     }
 
     client.query(query, [req.query.lat, req.query.long], function(err, result) {
