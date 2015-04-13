@@ -11,7 +11,7 @@ var query = 'SELECT *, ST_Distance(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2),
             'ORDER BY distance ' +
             'LIMIT 10';
 
-app.get('/', function (req, res) {
+app.get('/', function (req, res, next) {
   pg.connect(pgUri, function(err, client, done) {
     if (err) {
       return console.error('error fetching client from pool', err);
@@ -28,6 +28,10 @@ app.get('/', function (req, res) {
 });
 
 var server = app.listen(3000, function () {
+
+
+// error handlers
+require('./libs/errors')(app);
 
   var host = server.address().address;
   var port = server.address().port;
