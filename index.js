@@ -9,6 +9,15 @@ nconf
   .env()
   .file({file:'./config.json'});
 
+
+var oauth2 = require('simple-oauth2')({
+  clientID: nconf.get('AUTOMATIC_CLIENT_ID'),
+  clientSecret: nconf.get('AUTOMATIC_CLIENT_SECRET'),
+  site: 'https://accounts.automatic.com',
+  tokenPath: '/oauth/access_token'
+});
+
+
 var query = 'SELECT *, ST_Distance(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 2227), geom) AS distance ' +
             'FROM sfsweeproutes ' +
             'WHERE geom && ST_Expand(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 2227), 100) ' +
@@ -36,6 +45,7 @@ app.get('/rules', function (req, res, next) {
 });
 
 
+// Handles incoming webhooks
 app.post('/webhook', function(req, res, next) {
   res.json('OK');
 
@@ -48,6 +58,37 @@ app.post('/webhook', function(req, res, next) {
     //TODO: update parked status and any pending notifications for user
     //TODO: ensure time > last parked time
   }
+});
+
+
+// Redirects to Automatic oAuth page
+app.get('/authorize', function(req, res, next) {
+  res.redirect(oauth2.authCode.authorizeURL({
+    scope: 'scope:user:profile scope:trip scope:location scope:vehicle:profile'
+  }));
+});
+
+
+// Handles response from Automatic's oAuth and exchanges code for access_token
+app.get('/redirect', function(req, res, next) {
+  var code = req.query.code;
+
+  oauth2.authCode.getToken({
+    code: code
+  }, function(err, result) {
+    if(err) return next(err);
+
+    var token = oauth2.accessToken.create(result);
+
+    var access_token = token.token.access_token;
+    var refresh_token = token.token.refresh_token;
+    var user_id = token.token.user.sid;
+
+    //TODO: store token and user_id in database
+    //TODO: redirect back to app
+
+    res.redirect('/');
+  });
 });
 
 

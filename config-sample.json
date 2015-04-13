@@ -1,3 +1,5 @@
 {
-  "PG_URL": "postgres://yourpostgresurl"
+  "PG_URL": "postgres://yourpostgresurl",
+  "AUTOMATIC_CLIENT_ID": "YOUR AUTOMATIC CLIENT ID",
+  "AUTOMATIC_CLIENT_SECRET": "YOUR AUTOMATIC CLIENT SECRET"
 }
